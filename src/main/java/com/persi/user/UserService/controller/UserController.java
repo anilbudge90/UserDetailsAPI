@@ -28,21 +28,21 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(userService.crate(usr));
 	}
 	
-	@GetMapping("/authUser")
+	@GetMapping("/adminUser")
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public String getAuthUsers()
 	{
 		return "Admin User";
 	}
 	
-	@GetMapping("/allUsers")
+	@GetMapping("/normalUser")
 	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public String getAllUsers()
 	{
 		return "Normal Users";
 	}
 	
-	@GetMapping("/GetData")
+	@GetMapping("/getAllUsers")
 	public List<User> getData()
 	{
 		List<User> allUsers = userService.getAllUsers();

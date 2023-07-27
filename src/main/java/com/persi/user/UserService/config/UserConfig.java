@@ -35,10 +35,10 @@ public class UserConfig  {
 		.csrf()
 		.disable()
 		.authorizeHttpRequests()
-		.requestMatchers("/users/add","/users/GetData").permitAll()
+		.requestMatchers("/users/add","/users/getAllUsers").permitAll()
 		.and()
 		.authorizeHttpRequests()
-		.requestMatchers("/users/authUser","/users/allUsers").authenticated()
+		.requestMatchers("/users/adminUser","/users/normalUser").authenticated()
 		.and().formLogin()
 		.and().build();
 	}

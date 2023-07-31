@@ -1,19 +1,26 @@
 package com.persi.user.UserService.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.persi.user.UserService.security.JWTAuthenticationEntryPoint;
+import com.persi.user.UserService.security.JwtAuthenticationFilter;
 import com.persi.user.UserService.services.UserDetailInformationService;
 
 
@@ -21,6 +28,9 @@ import com.persi.user.UserService.services.UserDetailInformationService;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class UserConfig  {
+	
+	@Autowired
+	private JwtAuthenticationFilter authenticationFilter;
 	
 	@Bean
 	public UserDetailsService userDetailsService()
@@ -35,12 +45,18 @@ public class UserConfig  {
 		.csrf()
 		.disable()
 		.authorizeHttpRequests()
-		.requestMatchers("/users/add","/users/getAllUsers").permitAll()
+		.requestMatchers("users/add","/users/authenticate","/products/getAllProducts").permitAll()
 		.and()
 		.authorizeHttpRequests()
-		.requestMatchers("/users/adminUser","/users/normalUser").authenticated()
-		.and().formLogin()
-		.and().build();
+		.requestMatchers("/users/adminUser","/users/normalUser","/products/**")
+		.authenticated()
+		.and()
+		.sessionManagement().
+		sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+		.and()
+		.authenticationProvider(authenticationProvider())
+		.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
+		.build();
 	}
 	
 	
@@ -60,5 +76,12 @@ public class UserConfig  {
 		return authProvider;
 		
 	}
+	
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception
+	{
+		return authenticationConfiguration.getAuthenticationManager();
+	}
+	
 
 }
